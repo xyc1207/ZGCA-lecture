@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="基于近半年调研比较 OpenAI、Anthropic 和 Google 的 AI4Science 技术押注，区分通用推理、序列建模和三维结构模型。">
+  <title>AI4Science 的三种技术押注｜2026.11.06</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f7f7f2;
+      --ink: #192a33;
+      --muted: #4e6067;
+      --line: #d9e0dc;
+      --white: #fff;
+      --openai: #176751;
+      --anthropic: #964a31;
+      --google: #3158a1;
+      --link: #2c557d;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-padding-top: 24px; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font: 15px/1.7 system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+      overflow-wrap: anywhere;
+    }
+    a { color: var(--link); text-underline-offset: 3px; }
+    a:hover { text-decoration-thickness: 2px; }
+    a:focus-visible { outline: 2px solid var(--link); outline-offset: 4px; border-radius: 2px; }
+    h1, h2, h3, p { margin: 0; }
+    .wrap { width: min(100% - 56px, 1120px); margin-inline: auto; }
+    .masthead {
+      min-height: 63px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+    .brand { font-size: 12px; font-weight: 780; letter-spacing: .13em; white-space: nowrap; }
+    .brand::before {
+      content: "";
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      margin-right: 9px;
+      border-radius: 50%;
+      background: var(--openai);
+    }
+    .edition, .note { color: var(--muted); font-size: 13px; }
+    .hero { padding: 40px 0 28px; }
+    .eyebrow, .index {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 740;
+      letter-spacing: .14em;
+    }
+    h1 { margin: 11px 0 9px; font-size: clamp(33px, 5vw, 56px); line-height: 1.23; letter-spacing: -.038em; }
+    .subtitle { color: var(--muted); font-size: clamp(14px, 2.3vw, 18px); }
+    .nowrap { white-space: nowrap; }
+    .bets, .materials { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    .bets { margin-top: 25px; }
+    .openai { --company: var(--openai); --tint: #eaf4ee; }
+    .anthropic { --company: var(--anthropic); --tint: #f9eee8; }
+    .google { --company: var(--google); --tint: #edf1fa; }
+    .bet {
+      border: 1px solid var(--line);
+      border-top: 3px solid var(--company);
+      border-radius: 8px;
+      padding: 18px 18px 17px;
+      background: var(--white);
+      box-shadow: 0 4px 12px #192a3308;
+    }
+    .company-name { color: var(--company); font-weight: 760; font-size: 13px; }
+    .bet h2 { font-size: 20px; line-height: 1.4; margin: 7px 0 7px; letter-spacing: -.015em; }
+    .bet p { color: var(--muted); font-size: 14px; }
+    .hero .note { margin-top: 12px; }
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 21px;
+      padding: 12px 0;
+      border-block: 1px solid var(--line);
+    }
+    nav a { color: var(--ink); font-size: 13px; font-weight: 680; text-decoration: none; }
+    nav a:hover { text-decoration: underline; }
+    main > section { margin-top: 33px; }
+    .section-title { display: flex; align-items: baseline; gap: 12px; margin-bottom: 14px; }
+    .section-title h2 { font-size: 25px; line-height: 1.4; letter-spacing: -.023em; }
+    .section-title + .note { margin: -7px 0 14px; }
+    .case {
+      display: grid;
+      grid-template-columns: minmax(125px, 18%) 1fr;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--white);
+      margin-top: 10px;
+    }
+    .case header { padding: 15px 18px; background: var(--tint); }
+    .case h3 { color: var(--company); font-size: 16px; }
+    .case dl { margin: 0; padding: 0 18px; }
+    .case dl > div {
+      display: grid;
+      grid-template-columns: 6.2em 1fr;
+      align-items: baseline;
+      gap: 8px;
+      padding: 11px 0;
+    }
+    .case dl > div + div { border-top: 1px solid #e9eeeb; }
+    dt { color: var(--company); font-size: 13px; font-weight: 730; }
+    dd { margin: 0; }
+    .ref { display: inline-block; margin-left: .24em; font-size: .72em; vertical-align: .24em; white-space: nowrap; }
+    .material {
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px 17px 16px;
+    }
+    .material h3 { font-size: 15px; margin: 3px 0 5px; }
+    .material p { font-size: 14px; }
+    .stage { color: var(--muted); font-size: 12px; }
+    .table-wrap { border: 1px solid var(--line); border-radius: 8px; background: var(--white); overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    thead { background: #edf0ec; }
+    th, td { text-align: left; vertical-align: top; padding: 12px 15px; }
+    thead th { color: var(--muted); font-size: 12px; font-weight: 750; }
+    thead th:first-child { width: 16%; }
+    thead th:nth-child(2) { width: 35%; }
+    tbody th { color: var(--company); font-size: 14px; }
+    tbody td { font-size: 14px; }
+    tbody tr { border-top: 1px solid var(--line); }
+    .model-table thead th:nth-child(2) { width: 42%; }
+    .model-table td p + p { margin-top: 8px; }
+    .sources { border-top: 1px solid var(--line); padding-top: 17px; }
+    .sources ol {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 5px 28px;
+      margin: 13px 0 18px;
+      padding-left: 2.1em;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .sources li { padding: 2px 2px 2px 3px; }
+    .sources li:target { background: #e2ebf6; border-radius: 4px; }
+    footer {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 25px;
+      border-top: 1px solid var(--line);
+      padding: 15px 0 24px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    @media (max-width: 780px) {
+      .wrap { width: calc(100% - 40px); }
+      .case { grid-template-columns: minmax(110px, 16%) 1fr; }
+      .case header, .case dl { padding-inline: 13px; }
+      .case dl > div { grid-template-columns: 5.5em 1fr; }
+      .bet, .material { padding-inline: 14px; }
+      .bet h2 { font-size: 18px; }
+      .sources ol { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 620px) {
+      .wrap { width: calc(100% - 32px); }
+      .hero { padding: 27px 0 20px; }
+      .bets, .materials, .case { grid-template-columns: 1fr; gap: 9px; }
+      .bets { margin-top: 18px; }
+      .bet, .material { padding: 12px 15px; }
+      .case { gap: 0; }
+      .case header { padding-block: 9px; }
+      .case dl > div { grid-template-columns: 1fr; gap: 2px; }
+      .section-title h2 { font-size: 22px; }
+      main > section { margin-top: 27px; }
+      .table-wrap { border: 0; background: transparent; overflow: visible; }
+      table, tbody, tbody tr, tbody th, td { display: block; }
+      thead { position: absolute; width: 1px; height: 1px; clip-path: inset(50%); overflow: hidden; }
+      tbody tr { border: 1px solid var(--line); border-radius: 8px; background: var(--white); margin: 9px 0; padding: 12px 14px; }
+      tbody th { padding: 0 0 4px; }
+      tbody td { padding: 6px 0 0; }
+      td::before { content: attr(data-label); display: block; color: var(--muted); font-size: 12px; font-weight: 690; }
+      .sources ol { grid-template-columns: 1fr; }
+    }
+    @media print {
+      @page { size: A4; margin: 13mm; }
+      * { print-color-adjust: exact; }
+      body { background: #fff; font-size: 10pt; }
+      .wrap { width: 100%; }
+      .masthead { min-height: 28px; }
+      .hero { padding: 18px 0 5px; }
+      h1 { font-size: 28pt; }
+      .bets { margin-top: 13px; }
+      .bet, .material { padding: 9px 10px; box-shadow: none; }
+      .bet h2 { font-size: 12pt; }
+      .bet p, .material p, tbody td { font-size: 9pt; }
+      .hero .note, .note, .edition { font-size: 8pt; }
+      nav { display: none; }
+      main > section { margin-top: 17px; }
+      .section-title { margin-bottom: 8px; break-after: avoid; }
+      .section-title h2 { font-size: 15pt; }
+      .case, .bet, .material, tr, .sources li { break-inside: avoid; }
+      .case { margin-top: 6px; }
+      .case dl > div { padding-block: 6px; }
+      th, td { padding: 7px 9px; }
+      .sources ol { font-size: 8pt; gap: 1px 22px; }
+      footer { margin-top: 12px; padding: 9px 0 0; font-size: 8pt; }
+    }
+  </style>
+</head>
+<body id="top">
+  <div class="wrap">
+    <header class="masthead">
+      <div class="brand">NEXT AI4SCIENCE</div>
+      <div class="edition">研究备忘录 · 2026.11.06</div>
+    </header>
+
+    <div class="hero">
+      <p class="eyebrow">TECHNOLOGY BETS</p>
+      <h1><span class="nowrap">AI4Science</span> 的三种技术押注</h1>
+      <p class="subtitle">OpenAI · Anthropic · Google / Alphabet</p>
+      <div class="bets" aria-label="三家技术押注速览">
+        <article class="bet openai">
+          <p class="company-name">OpenAI</p>
+          <h2>让通用推理跨领域复用</h2>
+          <p>用同一套推理能力调用各领域的工具与验证器。工作台保存研究证据，研发平台把证据连到下一步决策。</p>
+        </article>
+        <article class="bet anthropic">
+          <p class="company-name">Anthropic</p>
+          <h2>让实验反馈改变研究做法</h2>
+          <p>让 Claude 读实验结果、定位失败原因，和研究人员一起改评价指标与下一轮方案。真实项目持续产生这类反馈。</p>
+        </article>
+        <article class="bet google">
+          <p class="company-name">Google / Alphabet</p>
+          <h2>用专用模型和数据提高候选质量</h2>
+          <p>直接对序列、结构和分子做生成与预测，在送测前处理科学约束。Gemini 提供假设推理与工具调度。</p>
+        </article>
+      </div>
+      <p class="note">路线研判基于 2026.05.06–11.06 的代表性公开成果、收购和合作。模型部分回看较早的代表工作，以交代训练路线。</p>
+    </div>
+
+    <nav aria-label="报告目录">
+      <a href="#model-bets">01 模型证据</a>
+      <a href="#evidence">02 代表项目</a>
+      <a href="#materials">03 材料对照</a>
+      <a href="#tests">04 验证指标</a>
+      <a href="#sources">来源</a>
+    </nav>
+
+    <main>
+      <section id="model-bets" aria-labelledby="model-bets-title">
+        <div class="section-title"><span class="index">01</span><h2 id="model-bets-title">押注大语言模型，还是三维结构模型？</h2></div>
+        <p class="note">以生物分子为例。自研模型看训练、权重和输出，工作流看实际调用。三维预测给定分子组成求结构，三维设计还可以生成新的结构和序列。</p>
+        <div class="table-wrap">
+          <table class="model-table" aria-labelledby="model-bets-title" role="table">
+            <thead role="rowgroup">
+              <tr role="row"><th scope="col" role="columnheader">公司</th><th scope="col" role="columnheader">模型层的公开证据</th><th scope="col" role="columnheader">三维结构由谁预测或生成</th></tr>
+            </thead>
+            <tbody role="rowgroup">
+              <tr class="openai" role="row">
+                <th scope="row" role="rowheader">OpenAI</th>
+                <td role="cell" data-label="模型层的公开证据">
+                  <p><strong>当前 Rosalind 主线复用通用 GPT。</strong> 2026 年 10 月版 GPT-Rosalind-6 与 GPT-6 Astra 共用权重。此前 6 月版 GPT-Rosalind-5.5 在 GPT-5.5 上用生命科学数据增量训练。<a class="ref" href="#ref-1" aria-label="来源 1">[1]</a><a class="ref" href="#ref-20" aria-label="来源 20">[20]</a></p>
+                  <p><strong>也做过蛋白序列专用模型。</strong> GPT-4b micro 从缩小版 GPT-4o 起步，续训数据以蛋白序列为主，包含生物文本与 token 化的三维结构。与 Retro Bio 的公开实验中，它直接提出蛋白变体序列。<a class="ref" href="#ref-21" aria-label="来源 21">[21]</a></p>
+                </td>
+                <td role="cell" data-label="三维结构由谁预测或生成">
+                  <p><strong>工作台集成。</strong> Rosalind Workbench 公开展示了结构查看器与专业工具的接入。<a class="ref" href="#ref-2" aria-label="来源 2">[2]</a></p>
+                  <p><strong>外部投资。</strong> OpenAI 参与了 Chai Discovery 的 2026 年 7 月融资。蛋白、核酸及小分子结构预测模型 <strong>Chai-1</strong> 由 Chai Discovery 开发。<a class="ref" href="#ref-22" aria-label="来源 22">[22]</a><a class="ref" href="#ref-23" aria-label="来源 23">[23]</a></p>
+                </td>
+              </tr>
+              <tr class="anthropic" role="row">
+                <th scope="row" role="rowheader">Anthropic</th>
+                <td role="cell" data-label="模型层的公开证据">
+                  <p><strong>Claude 担任科研 agent。</strong> 在 8 月的多靶点蛋白设计项目中，研究团队给出工具范围，Claude 选择靶位、组合工具、筛选候选并安排下一轮优化。<a class="ref" href="#ref-24" aria-label="来源 24">[24]</a></p>
+                  <p>9 月，Anthropic 用内部通用研究模型优化了 30 多个生物模型的运行代码，并公开优化实现。这里的投入发生在科研执行和软件层。<a class="ref" href="#ref-25" aria-label="来源 25">[25]</a></p>
+                </td>
+                <td role="cell" data-label="三维结构由谁预测或生成">
+                  <p><strong>三维设计由外部模型承担。</strong> 技术报告逐项记录了 RFdiffusion3、BoltzGen 等用于骨架生成或联合设计，许多序列由 ProteinMPNN 的可溶版本设计。<a class="ref" href="#ref-24" aria-label="来源 24">[24]</a></p>
+                </td>
+              </tr>
+              <tr class="google" role="row">
+                <th scope="row" role="rowheader">Google / Alphabet</th>
+                <td role="cell" data-label="模型层的公开证据">
+                  <p><strong>Gemini 和自研科学模型并行。</strong> Gemini 驱动 Co-Scientist 的科研假设推理与工具调用。AlphaGenome 直接读取 DNA 序列，预测表达、剪接等基因调控信号，体现了序列到功能的另一条专用模型路线。<a class="ref" href="#ref-16" aria-label="来源 16">[16]</a><a class="ref" href="#ref-26" aria-label="来源 26">[26]</a></p>
+                </td>
+                <td role="cell" data-label="三维结构由谁预测或生成">
+                  <p><strong>DeepMind 团队直接训练结构模型。</strong> 与 Isomorphic Labs 共同开发的 <strong>AlphaFold 3</strong> 由扩散模块直接预测复合物的原子坐标，覆盖蛋白、核酸及小分子等。<a class="ref" href="#ref-27" aria-label="来源 27">[27]</a></p>
+                  <p><strong>AlphaProtein Novo</strong> 给定催化基序和配体，联合生成蛋白序列与三维结构。DeepMind 发布了模型代码和可下载权重。<a class="ref" href="#ref-11" aria-label="来源 11">[11]</a><a class="ref" href="#ref-12" aria-label="来源 12">[12]</a></p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="evidence" aria-labelledby="evidence-title">
+        <div class="section-title"><span class="index">02</span><h2 id="evidence-title">代表项目</h2></div>
+
+        <article class="case openai" aria-labelledby="openai-title">
+          <header><h3 id="openai-title">OpenAI</h3></header>
+          <dl>
+            <div>
+              <dt>模型与工具</dt>
+              <dd><strong>GPT-Rosalind-6 直接复用 GPT-6 Astra 权重。</strong> Rosalind Workbench 将生命科学工具、结构与序列查看器、分析结果和证据接到同一工作环境。<a class="ref" href="#ref-1" aria-label="来源 1">[1]</a><a class="ref" href="#ref-2" aria-label="来源 2">[2]</a></dd>
+            </div>
+            <div>
+              <dt>跨领域实测</dt>
+              <dd>GPT-5.4 接入 Molecule.one 的 Maria，在两轮实验中依据实测调整 Chan–Lam 偶联条件。高通量筛选的平均产率由 <strong>16.6% 升至 25.2%</strong>，人工复验中 <strong>11/14</strong> 对底物产率提高。MIT 研究者也用 Codex 和 GPT-5.6 Sol 在量子芯片上完成部分常规测量与校准。<a class="ref" href="#ref-3" aria-label="来源 3">[3]</a><a class="ref" href="#ref-4" aria-label="来源 4">[4]</a></dd>
+            </div>
+            <div>
+              <dt>研发协同</dt>
+              <dd>收购 <strong>Orchestra Bio</strong>，计划将药物项目的研究进度、外部协作与任务依赖接入 Rosalind。<a class="ref" href="#ref-5" aria-label="来源 5">[5]</a></dd>
+            </div>
+          </dl>
+        </article>
+
+        <article class="case anthropic" aria-labelledby="anthropic-title">
+          <header><h3 id="anthropic-title">Anthropic</h3></header>
+          <dl>
+            <div>
+              <dt>抗体优化</dt>
+              <dd><strong>BigHat 在 10 周内对两类抗体片段共开展 7 轮设计与实测。</strong> Claude 与研究人员复查原始数据，调整热稳定性和聚集的评价指标及实验方案。BigHat 报告的最佳亲和力约为起始分子的 <strong>9 倍</strong>，保持可溶的温度最高提高 <strong>18°C</strong>。<a class="ref" href="#ref-6" aria-label="来源 6">[6]</a><a class="ref" href="#ref-7" aria-label="来源 7">[7]</a></dd>
+            </div>
+            <div>
+              <dt>蛋白结合物</dt>
+              <dd><strong>蝎毒项目</strong>由 Claude 调用现有蛋白设计与折叠工具，Adaptyv 和 Twist 测试 <strong>211</strong> 个设计，得到 <strong>17</strong> 个单靶标结合命中，覆盖 <strong>4/5</strong> 个靶标。最强两个的 K<sub>D</sub> 为个位数 nM。全部送测设计和结合读数已公开。毒素中和与动物保护待验证。<a class="ref" href="#ref-8" aria-label="来源 8">[8]</a></dd>
+            </div>
+            <div>
+              <dt>实验与项目</dt>
+              <dd><strong>MHS</strong> 以研究预览方式开放仪器接口。Anthropic 同时开展内部实验，并在收购 Mithril Medicine 后继续推进其已有小鼠结果的罕见病项目。<a class="ref" href="#ref-9" aria-label="来源 9">[9]</a><a class="ref" href="#ref-10" aria-label="来源 10">[10]</a><a class="ref" href="#ref-7" aria-label="来源 7">[7]</a></dd>
+            </div>
+          </dl>
+        </article>
+
+        <article class="case google" aria-labelledby="google-title">
+          <header><h3 id="google-title">Google / Alphabet</h3></header>
+          <dl>
+            <div>
+              <dt>原生酶设计</dt>
+              <dd><strong>AlphaProtein Novo</strong> 用催化基序和配体作条件，联合生成蛋白序列与结构，再用 AlphaFold 3 预测和反应机制指标筛选。预印本报告了哌啶合成及增塑剂 DEHP 降解的催化实验。<a class="ref" href="#ref-11" aria-label="来源 11">[11]</a><a class="ref" href="#ref-12" aria-label="来源 12">[12]</a></dd>
+            </div>
+            <div>
+              <dt>小分子设计</dt>
+              <dd>Alphabet 生态内的 Isomorphic Labs 用 <strong>IsoDDE</strong> 协同生成与预测模型，按选择性、溶解度、渗透性等目标搜索。展示案例的计算阶段耗时 <strong>2–4 天</strong>，之后选样合成并实测功能浓度—响应曲线。<a class="ref" href="#ref-13" aria-label="来源 13">[13]</a></dd>
+            </div>
+            <div>
+              <dt>科学数据</dt>
+              <dd><strong>AlphaGenome Atlas</strong> 将约 90 亿种单碱基替换的模型预测转为可查询资源。DeepMind 与 Isomorphic Labs 参与 Biohub 合作，计划建设开放的多模态细胞测量数据。<a class="ref" href="#ref-14" aria-label="来源 14">[14]</a><a class="ref" href="#ref-15" aria-label="来源 15">[15]</a></dd>
+            </div>
+            <div>
+              <dt>假设推理</dt>
+              <dd>Gemini 驱动的 <strong>Co-Scientist</strong> 通过多 agent 生成、评议和排序科研假设，可接入科学数据库和专业模型。<a class="ref" href="#ref-16" aria-label="来源 16">[16]</a></dd>
+            </div>
+          </dl>
+        </article>
+      </section>
+
+      <section id="materials" aria-labelledby="materials-title">
+        <div class="section-title"><span class="index">03</span><h2 id="materials-title">材料案例的证据类型</h2></div>
+        <div class="materials">
+          <article class="material">
+            <div class="stage">计算候选 · OpenAI / Anthropic</div>
+            <h3>高导热、低介电材料</h3>
+            <p>第三方评测中两家的模型均筛出计算候选，GPT-5.6 Sol 提出的一条合成路线被评为合理。候选仍待合成与实测。<a class="ref" href="#ref-17" aria-label="来源 17">[17]</a></p>
+          </article>
+          <article class="material">
+            <div class="stage">模拟计算 · Google / Schrödinger</div>
+            <h3>机器学习力场加速</h3>
+            <p>AlphaEvolve 用程序运行反馈筛选优化方案，机器学习力场训练与推理速度约为原来的 <strong>4 倍</strong>。<a class="ref" href="#ref-18" aria-label="来源 18">[18]</a></p>
+          </article>
+          <article class="material">
+            <div class="stage">真实仪器 · Google Cloud / NLR</div>
+            <h3>透射电镜校准</h3>
+            <p>Gemini 接入受控仪器命令，依据实时图像与状态执行操作。案例报告校准耗时由 <strong>90 多分钟降至约 13 分钟</strong>。<a class="ref" href="#ref-19" aria-label="来源 19">[19]</a></p>
+          </article>
+        </div>
+      </section>
+
+      <section id="tests" aria-labelledby="tests-title">
+        <div class="section-title"><span class="index">04</span><h2 id="tests-title">接下来怎么判断押注是否成立</h2></div>
+        <p class="note">未来 6–12 个月的观察指标。对照尽量固定工具、人工投入或送测预算，衡量技术本身带来的增益。</p>
+        <div class="table-wrap">
+          <table aria-labelledby="tests-title" role="table">
+            <thead role="rowgroup">
+              <tr role="row"><th scope="col" role="columnheader">公司</th><th scope="col" role="columnheader">已公开的反馈用法</th><th scope="col" role="columnheader">关键验证信号</th></tr>
+            </thead>
+            <tbody role="rowgroup">
+              <tr class="openai" role="row">
+                <th scope="row" role="rowheader">OpenAI</th>
+                <td role="cell" data-label="已公开的反馈用法">Maria 的实验读数进入任务上下文，帮助选择下一轮条件。<a class="ref" href="#ref-3" aria-label="来源 3">[3]</a></td>
+                <td role="cell" data-label="关键验证信号">在两个新领域复用同一通用底座，各接领域工具。与专家设定的流程对照，记录首个可复现结果的耗时及人工接管次数。</td>
+              </tr>
+              <tr class="anthropic" role="row">
+                <th scope="row" role="rowheader">Anthropic</th>
+                <td role="cell" data-label="已公开的反馈用法">BigHat 用实测调整评价方法。Vault 项目把失败记录交给模型团队，用于指导训练数据选择。<a class="ref" href="#ref-7" aria-label="来源 7">[7]</a><a class="ref" href="#ref-10" aria-label="来源 10">[10]</a></td>
+                <td role="cell" data-label="关键验证信号">固定模型、工具、送测数和实验轮次，对比允许重规划与固定流程时多项性质同时达标的候选数。用留出的新项目检验失败记录用于训练后的收益。</td>
+              </tr>
+              <tr class="google" role="row">
+                <th scope="row" role="rowheader">Google / Alphabet</th>
+                <td role="cell" data-label="已公开的反馈用法">IsoDDE 在计算阶段用专用模型的预测分数调整下一批分子搜索，筛选后再送测。<a class="ref" href="#ref-13" aria-label="来源 13">[13]</a></td>
+                <td role="cell" data-label="关键验证信号">固定 agent、筛选流程和送测数，分别替换专用生成器或预测器。在新靶点或新反应上对比功能命中率和每个达标候选的验证成本。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="sources" id="sources" aria-labelledby="sources-title">
+        <div class="section-title"><span class="index">↗</span><h2 id="sources-title">调研依据与原始来源</h2></div>
+        <p class="note">数据沿用各项目的实验条件和统计口径。<a href="https://chatgpt.com/library?file_id=libfile_f3dd110d00888191bb4d522fc7ae7baa&amp;account_id=personal">近半年成果简报</a> · <a href="https://chatgpt.com/library?file_id=libfile_df11f35897d0819199828dc9f9b8f126&amp;account_id=personal">收购与合作调研</a></p>
+        <ol>
+          <li id="ref-1"><a href="https://deploymentsafety.openai.com/gpt-rosalind-6">GPT-Rosalind-6 系统卡</a></li>
+          <li id="ref-2"><a href="https://developers.openai.com/blog/rosalind-workbench">Rosalind Workbench</a></li>
+          <li id="ref-3"><a href="https://openai.com/index/ai-chemist-improves-reaction/">OpenAI × Molecule.one 化学实测</a></li>
+          <li id="ref-4"><a href="https://openai.com/index/codex-quantum-computing-experiments/">Codex 量子芯片实验</a></li>
+          <li id="ref-5"><a href="https://openai.com/index/openai-to-acquire-orchestra-bio/">OpenAI 收购 Orchestra Bio</a></li>
+          <li id="ref-6"><a href="https://www.bighatbio.com/news/agents-at-the-bench-anthropic-and-bighat-collaborate-on-rapid-agentic-driven-therapeutic-antibody-optimization">BigHat 抗体优化报告</a></li>
+          <li id="ref-7"><a href="https://www.anthropic.com/research/early-progress-drug-development">Anthropic 药物研发项目</a></li>
+          <li id="ref-8"><a href="https://www.anthropic.com/research/claude-scorpion-toxin-binder-design">蝎毒结合物与实验数据</a></li>
+          <li id="ref-9"><a href="https://www.anthropic.com/news/model-hardware-standard-research-preview">MHS 仪器接口研究预览</a></li>
+          <li id="ref-10"><a href="https://www.anthropic.com/research/investigating-vault-particles-with-claude">Vault 项目与训练反馈</a></li>
+          <li id="ref-11"><a href="https://www.biorxiv.org/content/10.64898/2026.10.01.756017v1">AlphaProtein Novo 预印本</a></li>
+          <li id="ref-12"><a href="https://github.com/google-deepmind/alphaprotein-novo">AlphaProtein Novo 模型与代码</a></li>
+          <li id="ref-13"><a href="https://www.isomorphiclabs.com/articles/building-a-new-path-to-make-medicines-with-ai">Isomorphic Labs 小分子设计案例</a></li>
+          <li id="ref-14"><a href="https://deepmind.google/blog/alphagenome-atlas-a-predictive-map-of-every-possible-dna-letter-change-in-the-human-genome/">AlphaGenome Atlas</a></li>
+          <li id="ref-15"><a href="https://biohub.org/news/virtual-biology-initiative-expansion/">Biohub 虚拟生物学数据合作</a></li>
+          <li id="ref-16"><a href="https://deepmind.google/blog/co-scientist-a-multi-agent-ai-partner-to-accelerate-research/">Google Co-Scientist</a></li>
+          <li id="ref-17"><a href="https://discoveredmaterials.com/benchmark/">第三方 Material Discovery Bench</a></li>
+          <li id="ref-18"><a href="https://deepmind.google/blog/alphaevolve-impact/">AlphaEvolve 力场计算加速</a></li>
+          <li id="ref-19"><a href="https://cloud.google.com/customers/national-laboratory-of-the-rockies">Google Cloud × NLR 电镜案例</a></li>
+          <li id="ref-20"><a href="https://deploymentsafety.openai.com/gpt-rosalind-5-5">GPT-Rosalind-5.5 系统卡</a></li>
+          <li id="ref-21"><a href="https://openai.com/index/accelerating-life-sciences-research-with-retro-biosciences/">OpenAI × Retro Bio 的 GPT-4b micro</a></li>
+          <li id="ref-22"><a href="https://www.businesswire.com/news/home/20260713849009/en/Chai-Discovery-Announces-%24400M-Series-C-to-Advance-AI-Driven-Molecular-Design">Chai Discovery 融资公告</a></li>
+          <li id="ref-23"><a href="https://github.com/chaidiscovery/chai-lab">Chai-1 结构预测模型</a></li>
+          <li id="ref-24"><a href="https://www-cdn.anthropic.com/30bf50e22a01388bb29bf077ee3f244531594b7a.pdf">Claude 蛋白设计技术报告</a></li>
+          <li id="ref-25"><a href="https://www.anthropic.com/research/claude-uplifts-biomolecular-modeling">Claude 优化生物模型运行代码</a></li>
+          <li id="ref-26"><a href="https://www.nature.com/articles/s41586-025-10014-0">AlphaGenome 论文</a></li>
+          <li id="ref-27"><a href="https://www.nature.com/articles/s41586-024-07487-w">AlphaFold 3 论文</a></li>
+        </ol>
+      </section>
+    </main>
+
+    <footer><span>NEXT AI4SCIENCE · 2026.11.06</span><a href="#top">回到顶部 ↑</a></footer>
+  </div>
+</body>
+</html>
